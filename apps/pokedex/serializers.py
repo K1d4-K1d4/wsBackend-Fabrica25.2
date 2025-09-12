@@ -23,6 +23,7 @@ class TreinadorSerializer(serializers.ModelSerializer):
       model = Treinador
       fields = ['id','nome','equipe']
 
-class AdicionarPokemonSerializer(serializers.Serializer):
-   pokemon_id = serializers.IntegerField()
-   apelido = serializers.CharField(max_length=100, required=False, allow_blank=True)
+class EquipeCreateUpdateSerializer(serializers.Serializer):
+   class Meta:
+      model = Equipe
+      fields = ['treinador','pokemon','apelido']
