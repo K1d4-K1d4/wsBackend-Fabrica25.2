@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Minha Pokédex</title>
+   <style>
+      body {
+         font-family: 'Arial', sans-serif;
+         background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+         margin: 0;
+         padding: 20px;
+         min-height: 100vh;
+      }
+      
+      .container {
+         max-width: 1200px;
+         margin: 0 auto;
+         background: white;
+         border-radius: 15px;
+         padding: 20px;
+         box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      }
+      
+      h1 {
+         text-align: center;
+         color: #2c3e50;
+         margin-bottom: 30px;
+         font-size: 2.5em;
+         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .pokemon-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+         gap: 20px;
+         margin-top: 20px;
+      }
+      
+      .pokemon-card {
+         background: linear-gradient(135deg, #74b9ff, #0984e3);
+         border-radius: 15px;
+         padding: 20px;
+         text-align: center;
+         color: white;
+         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+         transition: transform 0.3s ease;
+      }
+      
+      .pokemon-card:hover {
+         transform: translateY(-5px);
+         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      }
+      
+      .pokemon-img {
+         width: 120px;
+         height: 120px;
+         background: rgba(255,255,255,0.2);
+         border-radius: 50%;
+         padding: 10px;
+         margin: 0 auto 15px;
+      }
+      
+      .pokemon-name {
+         font-weight: bold;
+         font-size: 1.5em;
+         margin: 10px 0;
+         text-transform: capitalize;
+         text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      }
+      
+      .pokemon-id {
+         background: rgba(255,255,255,0.2);
+         padding: 5px 10px;
+         border-radius: 20px;
+         font-size: 0.9em;
+      }
+      
+      .pokemon-stats {
+         background: rgba(255,255,255,0.2);
+         padding: 10px;
+         border-radius: 10px;
+         margin: 10px 0;
+      }
+      
+      .pokemon-types {
+         font-style: italic;
+         margin-top: 10px;
+         padding: 8px;
+         background: rgba(255,255,255,0.2);
+         border-radius: 10px;
+      }
+      
+      .empty-state {
+         text-align: center;
+         padding: 40px;
+         color: #7f8c8d;
+         font-size: 1.2em;
+      }
+      
+      .api-link {
+         text-align: center;
+         margin-top: 30px;
+         padding: 20px;
+         background: #f8f9fa;
+         border-radius: 10px;
+      }
+   </style>
+</head>
+<body>
+   <div class="container">
+      <h1>🌟 Minha Coleção Pokémon 🌟</h1>
+      
+      <div class="pokemon-grid">
+         {% for pokemon in pokemons %}
+         <div class="pokemon-card">
+               <div class="pokemon-id">#{{ pokemon.id }}</div>
+               
+               {% if pokemon.sprite_url %}
+               <img src="{{ pokemon.sprite_url }}" alt="{{ pokemon.nome }}" class="pokemon-img" 
+                  onerror="this.src='https://via.placeholder.com/120x120?text=🎮'">
+               {% else %}
+               <img src="https://via.placeholder.com/120x120?text=🎮" alt="Pokémon" class="pokemon-img">
+               {% endif %}
+               
+               <div class="pokemon-name">{{ pokemon.nome }}</div>
+               
+               <div class="pokemon-stats">
+                  <div>📏 Altura: {{ pokemon.altura }} dm</div>
+                  <div>⚖️ Peso: {{ pokemon.peso }} hg</div>
+               </div>
+               
+               <div class="pokemon-types">
+                  🎯 Tipo: {{ pokemon.tipo }}
+               </div>
+         </div>
+         {% empty %}
+         <div class="empty-state">
+               <h2>📭 Pokédex Vazia</h2>
+               <p>Use a API para adicionar Pokémon à sua coleção!</p>
+               <p>👉 Acesse <a href="/api/pokemons/">/api/pokemons/</a></p>
+         </div>
+         {% endfor %}
+      </div>
+      
+      <div class="api-link">
+         <h3>🔗 Endpoints da API:</h3>
+         <p><strong>GET/POST Pokémon:</strong> <a href="/api/pokemons/">/api/pokemons/</a></p>
+         <p><strong>GET/POST Treinadores:</strong> <a href="/api/treinadores/">/api/treinadores/</a></p>
+         <p><strong>GET/POST Equipes:</strong> <a href="/api/equipes/">/api/equipes/</a></p>
+      </div>
+   </div>
+</body>
+</html>

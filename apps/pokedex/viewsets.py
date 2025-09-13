@@ -1,6 +1,5 @@
 import requests
 from rest_framework import viewsets, status, serializers
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Pokemon, Treinador, Equipe
 from .serializers import PokemonSerializer, TreinadorSerializer, EquipeSerializer, EquipeCreateUpdateSerializer
@@ -10,17 +9,15 @@ class PokemonViewSet(viewsets.ModelViewSet):
    serializer_class = PokemonSerializer
    
    def perform_create(self, serializer):
-      nome_pokemon = serializer.validated_data.get('nome').lower()
-      
-      if Pokemon.objects.filter(nome=nome_pokemon).exists():
-         raise serializer.ValidationError(f"O Pokémon '{nome_pokemon} já foi adicionado a equipe!")
-      
-      try: #Etapa aonde acontece a interação com a API e a validação da busca
-         response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{nome_pokemon}")
+      busca = serializer.validated_data.get('busca_pokedex').lower()
+
+      #Etapa aonde acontece a interação com a API e a validação da busca
+      try: 
+         response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{busca}")
          response.raise_for_status()
          data = response.json()
       except requests.RequestException:
-         raise serializers.ValidationError(f"Não foi possível encontrar o Pokémon {nome_pokemon}.")
+         raise serializers.ValidationError(f"Não foi possível encontrar o Pokémon {busca}.")
       
       #Devido a estruturação do Pokeapi, é necessário buscar de forma mais específica para descobrir os tipos do pokemon
       tipos_encontrados = []
@@ -30,10 +27,15 @@ class PokemonViewSet(viewsets.ModelViewSet):
       tipos_str = ','.join(tipos_encontrados) #E guarda tudo como string
       
       #Etapa aonde é salvo todos as informações do Pokémon
-      serializer.save(
-         altura=data['height'],
-         peso=data['weight'],
-         tipo=tipos_str
+      pokemon, created = Pokemon.objects.update_or_create(
+         id=data['id'],
+         defaults={
+            'nome':data['name'],
+            'altura':data['height'],
+            'peso':data['weight'],
+            'tipo':tipos_str,
+            'sprite_url':data['sprites']['front_default']
+         }
       )
       
 class TreinadorViewSet(viewsets.ModelViewSet):
