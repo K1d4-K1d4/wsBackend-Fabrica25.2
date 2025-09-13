@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=pokemondb
+      - POSTGRES_USER=pokemon_user
+      - POSTGRES_PASSWORD=pokepass
+  
+  web:
+    build: .
+    command: >
+      sh -c "
+        while ! pg_isready -q -h db -p 5432 -U pokemon_user; do
+          echo 'Waiting for database...';
+          sleep 2;
+        done;
+        echo 'Database ready!';
+        python manage.py migrate && python manage.py runserver 0.0.0.0:8000;
+      "
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_NAME=pokemondb
+      - DB_USER=pokemon_user
+      - DB_PASSWORD=pokepass
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
