@@ -1,0 +1,40 @@
+{% extends 'pokedex/base.html' %}
+
+{% block title %}Minha Equipe{% endblock %}
+
+{% block content %}
+   {% if treinador %}
+      <h2>Equipe de {{ treinador.user.username }} ({{ equipe|length }}/6)</h2>
+      {% if equipe %}
+      <div class="pokemon-grid">
+         {% for item in equipe %}
+               <div class="pokemon-card">
+                  <img src="{{ item.pokemon.sprite_url }}" alt="{{ item.pokemon.nome }}">
+                  <h3>{{ item.apelido|default_if_none:item.pokemon.nome }}</h3>
+                  <p>#{{ item.pokemon.id }} - {{ item.pokemon.nome }}</p>
+                  <form method="POST" action="{% url 'remover-pokemon' item.id %}" style="margin-top: 10px;">
+                     {% csrf_token %}
+                     <button type="submit" class="btn" style="background-color: #e63946;">Remover</button>
+                  </form>
+               </div>
+         {% endfor %}
+      </div>
+      {% else %}
+         <p>Sua equipe está vazia. Vá para a página de busca para adicionar Pokémons!</p>
+      {% endif %}
+
+      <hr style="margin-top: 40px;">
+
+      <div>
+         <h3>Gerenciar Conta</h3>
+         <form method="POST" action="{% url 'delete-account' %}" onsubmit="return confirm('Tem certeza que deseja apagar sua conta? Esta ação não pode ser desfeita.');">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background-color: #d62828;">Apagar Minha Conta</button>
+         </form>
+      </div>
+
+   {% else %}
+      <h2>Nenhum treinador selecionado.</h2>
+      <p><a href="{% url 'auth-page' %}" class="btn">Faça Login ou Registre-se</a> para ver sua equipe.</p>
+   {% endif %}
+{% endblock %}

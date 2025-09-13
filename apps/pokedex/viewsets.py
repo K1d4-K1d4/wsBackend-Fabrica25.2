@@ -1,32 +1,30 @@
 import requests
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Pokemon, Treinador, Equipe
 from .serializers import PokemonSerializer, TreinadorSerializer, EquipeSerializer, EquipeCreateUpdateSerializer
+
 
 class PokemonViewSet(viewsets.ModelViewSet):
    queryset = Pokemon.objects.all()
    serializer_class = PokemonSerializer
    
-   def perform_create(self, serializer):
+   def create(self, request, *args, **kwargs):
+      serializer = self.get_serializer(data=request.data)
+      serializer.is_valid(raise_exception=True)
       busca = serializer.validated_data.get('busca_pokedex').lower()
 
-      #Etapa aonde acontece a interação com a API e a validação da busca
       try: 
          response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{busca}")
          response.raise_for_status()
          data = response.json()
       except requests.RequestException:
-         raise serializers.ValidationError(f"Não foi possível encontrar o Pokémon {busca}.")
+         raise serializers.ValidationError(f"Não foi possível encontrar o Pokémon '{busca}'.")
       
-      #Devido a estruturação do Pokeapi, é necessário buscar de forma mais específica para descobrir os tipos do pokemon
-      tipos_encontrados = []
-      for item_tipo in data['types']: #Ele busca todos os atributos types 
-         nome_do_tipo = item_tipo['type']['name'] #E puxa a informação nome de cada um deles
-         tipos_encontrados.append(nome_do_tipo) #E então ele junta tudo em uma lista
-      tipos_str = ','.join(tipos_encontrados) #E guarda tudo como string
+      tipos_lista = [t['type']['name'] for t in data['types']]
+      tipos_str = ','.join(tipos_lista)
       
-      #Etapa aonde é salvo todos as informações do Pokémon
       pokemon, created = Pokemon.objects.update_or_create(
          id=data['id'],
          defaults={
@@ -38,28 +36,30 @@ class PokemonViewSet(viewsets.ModelViewSet):
          }
       )
       
+      status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+      response_serializer = self.get_serializer(pokemon)
+      return Response(response_serializer.data, status=status_code)
+         
 class TreinadorViewSet(viewsets.ModelViewSet):
-   queryset = Treinador.objects.all()
    serializer_class = TreinadorSerializer
+   permission_classes = [IsAuthenticated]
+   
+   def get_queryset(self):
+      return Treinador.objects.filter(user=self.request.user)
    
 class EquipeViewSet(viewsets.ModelViewSet):
-   queryset = Equipe.objects.all()
    serializer_class = EquipeSerializer
+   permission_classes = [IsAuthenticated]
    
-   def create(self, request, *args, **kwargs):
-      create_serializer = EquipeCreateUpdateSerializer(data=request.data)
-      if not create_serializer.is_valid():
-         return Response(create_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-      
-      treinador = create_serializer.validated_data['treinador']
-      
+   def get_queryset(self):
+      return Equipe.objects.filter(treinador__user=self.request.user)
+   
+   def perform_create(self,serializer):
+      treinador = Treinador.objects.get(user=self.request.user)
       if treinador.equipe_set.count() >= 6:
-         return Response(
-            {"Erro":"O limite de 6 pokemons foi atingido"},
-            status=status.HTTP_400_BAD_REQUEST
-         )
-      return super().create(request,*args,**kwargs)
-   
+         raise serializers.ValidationError("A equipe já está lotada, máximo de 6 pokemons")
+      serializer.save(treinador=treinador)
+
    def get_serializer_class(self):
       if self.action in ['create','update','partial_update']:
          return EquipeCreateUpdateSerializer

@@ -1,0 +1,33 @@
+{% extends 'pokedex/base.html' %}
+
+{% block title %}Login / Registro{% endblock %}
+
+{% block content %}
+   <div class="auth-container">
+      
+      <div class="auth-card">
+         <h2>Login de Treinador</h2>
+         <form method="POST" action="{% url 'login' %}">
+               {% csrf_token %}
+               {{ login_form.as_p }}
+               <button type="submit" class="btn" style="width: 100%;">Entrar</button>
+         </form>
+         <datalist id="usernames-list">
+            {% for username in usernames %}
+               <option value="{{ username }}">
+            {% endfor %}
+         </datalist>
+      </div>
+      
+      <div class="vertical-separator"></div>
+
+      <div class="auth-card">
+         <h2>Criar Nova Conta</h2>
+         <form method="POST" action="{% url 'register' %}">
+               {% csrf_token %}
+               {{ register_form.as_p }}
+               <button type="submit" class="btn" style="width: 100%;">Registrar</button>
+         </form>
+      </div>
+   </div>
+{% endblock %}
