@@ -10,6 +10,7 @@ router.register(r'treinadores', TreinadorViewSet, basename='treinador')
 router.register(r'equipes', EquipeViewSet, basename='equipe')
 
 urlpatterns = [
+#Rotas das interfaces WEB
    path('', views.auth_view, name='auth-page'),
    path('register/', views.register_view, name='register'),
    path('login/', views.login_view, name='login'),
@@ -18,7 +19,7 @@ urlpatterns = [
    path('equipe/', views.minha_equipe, name='minha-equipe'),
    path('equipe/remover/<int:equipe_id>/', views.remover_pokemon, name='remover-pokemon'),
    path('conta/apagar/', views.delete_account_view, name='delete-account'),
-
+#Rotas da API
    path('api/', include(router.urls)),
    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
