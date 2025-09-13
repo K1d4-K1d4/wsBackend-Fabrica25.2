@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 class Pokemon(models.Model):
@@ -12,13 +14,15 @@ class Pokemon(models.Model):
    def __str__(self):
       return self.nome.capitalize()
 
+#Classe que será usada para registrar um treinador(usuário) novo
 class Treinador(models.Model):
-   nome = models.CharField(max_length=100)
+   nome = models.OneToOneField(User,on_delete=models.CASCADE)
    pokemons = models.ManyToManyField(Pokemon, through='Equipe', related_name='treinadores')
    
    def __str__(self):
-      return self.nome
+      return self.user.username
    
+
 #Classe que será usada para registrar uma equipe criada pelo usuário   
 class Equipe(models.Model):
    treinador = models.ForeignKey("Treinador", on_delete=models.CASCADE)
