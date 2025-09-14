@@ -52,6 +52,7 @@ Este é um projeto desenvolvido como parte do Workshop de Backend da Fábrica de
 4.  **Aplique as Migrações:**
     * Este comando criará o arquivo de banco de dados SQLite ou as tabelas no seu PostgreSQL.
     ```bash
+    python manage.py makemigrations
     python manage.py migrate
     ```
 

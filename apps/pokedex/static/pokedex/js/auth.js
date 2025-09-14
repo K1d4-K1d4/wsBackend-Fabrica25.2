@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
          const formData = new FormData(form);
          const data = Object.fromEntries(formData.entries());
          const messageDiv = document.getElementById('register-message');
-         
-         // GARANTA QUE ESTA LINHA ESTEJA EXATAMENTE ASSIM
          const csrfToken = getCookie('csrftoken');
 
          try {

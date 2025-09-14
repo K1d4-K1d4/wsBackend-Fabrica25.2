@@ -78,8 +78,8 @@ form p input, form p select {
    box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
 }
 .pokemon-card img { 
-   width: 150px; /* Tamanho maior para os sprites */
-   height: 150px; /* Mantém a proporção */
+   width: 150px; 
+   height: 150px; 
    image-rendering: pixelated; 
 }
 .pokemon-card h3 { 
